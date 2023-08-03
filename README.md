@@ -1,4 +1,5 @@
-# TimeKeeper Web Application
+# TimeKeeper
+![image](https://github.com/bdinyarian/TimeKeeper/assets/21012337/09d08b33-9988-4721-81cb-8a5ebabfd9d3)
 
 TimeKeeper is a web-based application for tracking time spent on projects. It allows users to add projects, start and stop timers for each project, and export and import project data in CSV format. The application uses HTML, CSS, and JavaScript to provide a simple and intuitive user interface.
 
