@@ -10,7 +10,7 @@ TimeKeeper is a web-based application for tracking time spent on projects. It al
 
 ## Getting Started
 
-To use TimeKeeper, simply open the `index.html` file in a web browser. The application will load the saved project data from the browser's localStorage and display it in a table. Users can add new projects, start and stop timers, and export and import project data using the buttons provided.
+To use TimeKeeper, simply open the `TimeKeeper.html` file in a web browser. The application will load the saved project data from the browser's localStorage and display it in a table. Users can add new projects, start and stop timers, and export and import project data using the buttons provided.
 
 ## Usage
 
