@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<!-- Title information -->
+<title>TimeKeeper</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Developer information -->
+
+<!--
+Developer: Bahram Dinyarian
+Email: bahramdinyarian@gmail.com
+-->
+
+<!-- Application description -->
+<meta name="description" content="TimeKeeper is a web-based application for tracking time spent on projects.">
+
+<!-- EULA -->
+
+<!--
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions; type `show c' for details.
+-->
+
+<!----------------------------------------------------------- STYLE -------------------------------------------------------------------->
+
+<style>
+
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 0;
+background-color: white; /* Set default background color */
+}
+
+/* Set dark mode background color */
+.dark-mode {
+background-color: #111; /* Set dark mode background color */
+}
+
+.header {
+position: sticky;
+top: 0;
+background-color: transparent; /* Set transparent background */
+z-index: 1;
+}
+
+.btn-container {
+display: flex;
+justify-content: space-between;
+align-items: center;
+position: sticky;
+bottom: 0;
+background-color: transparent; /* Set transparent background */
+z-index: 1;
+}
+
+.container {
+background-color: transparent; /* Set the background color of the main container to cover the entire screen */
+}
+
+.dark-mode .container {
+background-color: #111; /* Dark mode styles */
+}
+
+h1,
+h3 {
+text-align: center;
+margin: 20px 0;
+}
+
+.header {
+position: sticky;
+top: 0;
+background-color: transparent;
+z-index: 1;
+}
+
+.table-container {
+overflow: auto;
+height: 700px;
+border: 1px solid #ddd;
+margin: 20px;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+}
+
+th,
+td {
+padding: 10px;
+text-align: left;
+border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+background-color: #f5f5f5;
+}
+
+input[type="text"] {
+padding: 10px;
+border: none;
+border-radius: 5px;
+background-color: #f2f2f2;
+margin-bottom: 10px;
+width: 75%;
+box-sizing: border-box;
+}
+
+.btn-container button {
+margin-right: 20px;
+transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+background-color: #4caf50;
+color: white;
+padding: 10px 20px;
+border: none;
+border-radius: 20px;
+cursor: pointer;
+align-self: flex-end;
+}
+
+.btn-primary:hover {
+background-color: #3e8e41;
+}
+
+.btn-danger {
+background-color: #f44336;
+}
+
+.btn-danger:hover {
+background-color: #da190b;
+}
+
+#file-input {
+display: none;
+}
+
+.btn-group {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-bottom: 10px;
+}
+
+.btn-group > * {
+margin-right: 10px;
+}
+
+.btn-group.right {
+justify-content: flex-end;
+}
+
+.btn-group.left {
+justify-content: flex-start;
+}
+
+.btn-group.small > * {
+padding: 8px 12px;
+font-size: 14px;
+}
+
+.btn-group.small > * + * {
+margin-left: 5px;
+}
+
+.toggle-btn {
+width: 50px;
+height: 30px;
+background-color: #ddd;
+border-radius: 15px;
+position: relative;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+.toggle-btn::before {
+content: '';
+width: 26px;
+height: 26px;
+background-color: #b3b3b3;
+border-radius: 50%;
+position: absolute;
+top: 2px;
+left: 2px;
+transition: transform 0.3s ease;
+}
+
+.toggle-btn.dark-mode {
+background-color: #555;
+}
+
+.toggle-btn.dark-mode::before {
+transform: translateX(20px);
+}
+
+.dark-mode body {
+color: white;
+}
+
+.dark-mode .toggle-btn::before {
+background-color: white;
+}
+
+@media screen and (max-width: 600px) {
+.btn-container {
+display: flex;
+justify-content: center;
+margin: 20px 0;
+}
+
+.btn-container button {
+margin-right: 5px;
+}
+
+.btn-group {
+flex-wrap: wrap;
+}
+
+.btn-group > * {
+margin-right: 0;
+margin-bottom: 10px;
+width: 50%;
+}
+
+.table-container {
+height: 300px;
+}
+
+}
+
+</style>
+
+</head>
+
+<!---------------------------------------------------------------- BODY -------------------------------------------------------------------------->
+
+<!-- Call the "loadSavedData()" function when the body is loaded -->
+<body onload="loadSavedData()">
+<div class="container">
+<div class="header">
+
+<!-- Display the company name and application title -->
+<h1>TimeKeeper</h1>
+
+<!-- Add some space below the application title -->
+<div style="margin-bottom: 30px;"></div>
+
+<!-- Create a container for the table -->
+<div class="table-container">
+
+<table>
+<!-- Create the table headers -->
+<thead>
+<tr>
+<th>#</th> <!-- Column for row number -->
+<th>Project Name</th> <!-- Column for project name -->
+<th>Description</th> <!-- Column for project description -->
+<th>Time Elapsed</th> <!-- Column for time elapsed -->
+<th>Date</th> <!-- Column for date -->
+<th class="action-btns">Action</th> <!-- Column for action buttons -->
+</tr>
+</thead>
+
+<!-- Create a container for the table rows -->
+<tbody id="projects"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- Create a container for the buttons -->
+<div class="btn-container">
+
+<!-- Add Project button -->
+<button class="btn-primary" onclick="addRow()">Add Project</button>
+
+<!-- File input for CSV import -->
+<input type="file" id="file-input" accept=".csv" onchange="importFromCSV()">
+<div class="btn-group right small">
+
+<!-- Label for importFile input -->
+<label for="importFile" class="btn-primary">Import</label>
+
+<!-- File input for CSV import (hidden) -->
+<input type="file" id="importFile" accept=".csv" onchange="importFromCSV()" style="display: none;">
+
+<!-- Export button -->
+<button class="btn-primary" onclick="exportToCSV()">Export</button>
+
+<!-- Dark mode toggle button -->
+<button id="dark-mode-toggle" class="toggle-btn" onclick="toggleDarkMode()"></button>
+
+<!-- Reset button -->
+<button class="btn-danger" onclick="resetLocalStorage()">Reset</button>
+
+</div>
+
+</div>
+
+<!--------------------------------------------------------------- JavaScript -------------------------------------------------------------------------->
+
+<script>
+
+/////////////////////////////////////////////////////////////////Load Saved Data////////////////////////////////////////////////////////////////////////////
+
+// This code loads saved data from localStorage and updates the corresponding HTML input fields
+let counter = parseInt(localStorage.getItem("counter")) || 0;
+
+// This function initializes a counter variable with a value
+function loadSavedData() {
+if (localStorage.length === 0) {
+return;
+}
+
+for (let i = 1; i <= localStorage.length; i++) {
+const savedData = localStorage.getItem(`project${i}`);
+if (savedData) {
+const data = JSON.parse(savedData);
+const projectName = data.projectName;
+const projectDesc = data.projectDesc;
+const row = document.getElementById(`row${i}`);
+row.querySelector(`#name${i}`).value = projectName;
+row.querySelector(`#desc${i}`).value = projectDesc;
+}
+}
+}
+
+/////////////////////////////////////////////////////////////////////Add Row///////////////////////////////////////////////////////////////////////////////
+
+// This function adds a new row to a table with an ID of "projects"
+function addRow() {
+
+// Increment the counter
+counter++;
+
+// Store the counter value in local storage
+localStorage.setItem("counter", counter);
+
+// Get the table body element
+const tbody = document.getElementById("projects");
+
+// Insert a new row at the end of the table
+const row = tbody.insertRow(-1);
+
+// Set the ID attribute of the new row
+row.setAttribute("id", `row${counter}`);
+
+// Insert cells into the new row
+const numCell = row.insertCell(0);
+const nameCell = row.insertCell(1);
+const descCell = row.insertCell(2);
+const timeCell = row.insertCell(3);
+const dateCell = row.insertCell(4);
+const actionCell = row.insertCell(5);
+
+// Populate the cells with content
+numCell.innerHTML = counter;
+nameCell.innerHTML = `<input type="text" id="name${counter}" placeholder="Enter project name">`;
+descCell.innerHTML = `<input type="text" id="desc${counter}" placeholder="Enter project description">`;
+timeCell.innerHTML = "0:00";
+
+// Check if saved data exists in local storage for this project
+const savedData = localStorage.getItem(`project${counter}`);
+if (savedData) {
+
+// If saved data exists, parse it and set the date cell to the saved date
+const data = JSON.parse(savedData);
+dateCell.innerHTML = data.date;
+} else {
+
+// If saved data doesn't exist, set the date cell to the current date
+dateCell.innerHTML = new Date().toLocaleDateString();
+}
+
+// Add buttons to the action cell
+actionCell.innerHTML = `<button onclick="startTimer(${counter})">Start</button> <button onclick="stopTimer(${counter})">Stop</button> <button onclick="duplicateRow(${counter})">Duplicate</button> <button class="btn-danger" onclick="deleteRow(${counter})">Delete</button>`;
+
+// Save the project data to local storage
+const projectName = document.getElementById(`name${counter}`).value;
+const projectDesc = document.getElementById(`desc${counter}`).value;
+localStorage.setItem(`project${counter}`, JSON.stringify({
+projectName,
+projectDesc,
+date: dateCell.innerHTML,
+startTime: null,
+timeElapsed: 0
+}));
+}
+
+//////////////////////////////////////////////////////////////////////START TIMER/////////////////////////////////////////////////////////////////////////
+
+// This function starts a timer for a given row number
+function startTimer(rowNum) {
+// Get the row element by ID
+const row = document.getElementById(`row${rowNum}`);
+
+// Get the project name from the input field
+const name = row.querySelector(`#name${rowNum}`).value;
+
+if (!name) {
+// If the project name is empty, show an alert and return
+alert("Please enter a project name.");
+return;
+}
+
+// Get the project description from the input field
+const desc = row.querySelector(`#desc${rowNum}`).value;
+
+// Get the current time and store it as the start time
+const savedData = localStorage.getItem(`project${rowNum}`);
+const data = JSON.parse(savedData);
+const startTime = Date.now() - (data.timeElapsed * 1000);
+
+// Store the project data in local storage
+localStorage.setItem(`project${rowNum}`, JSON.stringify({
+projectName: name,
+projectDesc: desc,
+startTime: startTime,
+timeElapsed: 0
+}));
+
+// Disable the start button and enable the stop button
+const startButton = row.querySelector(`button:nth-of-type(1)`);
+const stopButton = row.querySelector(`button:nth-of-type(2)`);
+startButton.setAttribute("disabled", true);
+stopButton.removeAttribute("disabled");
+
+// Start a timer that updates the elapsed time every second
+const timer = setInterval(() => {
+const currentTime = Date.now();
+const savedData = localStorage.getItem(`project${rowNum}`);
+if (savedData) {
+const data = JSON.parse(savedData);
+const timeElapsed = Math.floor((currentTime - data.startTime) / 1000);
+data.timeElapsed = timeElapsed;
+localStorage.setItem(`project${rowNum}`, JSON.stringify(data));
+row.querySelector(`td:nth-of-type(4)`).innerHTML = formatTime(timeElapsed);
+
+// Check if a minute has passed
+if (timeElapsed % 60 === 0) {
+// Play the beep sound
+playBeepSound();
+}
+}
+}, 1000);
+
+// Store the timer ID on the row element
+row.setAttribute("data-timer-id", timer);
+}
+
+//////////////////////////////////////////////////////////////////////BEEPER////////////////////////////////////////////////////////////////////////
+
+function playBeepSound() {
+// Create an audio element
+const audio = new Audio();
+
+// Define the source of the audio file
+audio.src = 'https://soundbible.com/mp3/A-Tone-His_Self-1266414414.mp3';
+
+// Play the beep sound
+audio.play();
+}
+
+
+//////////////////////////////////////////////////////////////////////STOP TIMER////////////////////////////////////////////////////////////////////////
+
+// This function stops the timer for the given row number and updates the display
+function stopTimer(rowNum) {
+// Get the row element and the start and stop buttons
+const row = document.getElementById(`row${rowNum}`);
+const startButton = row.querySelector(`button:nth-of-type(1)`);
+const stopButton = row.querySelector(`button:nth-of-type(2)`);
+
+// Disable the stop button and enable the start button
+stopButton.setAttribute("disabled", true);
+startButton.removeAttribute("disabled");
+
+// Clear the interval timer for the row
+clearInterval(row.getAttribute("data-timer-id"));
+
+// Get the saved data for the row (if any) and update the time elapsed display
+const savedData = localStorage.getItem(`project${rowNum}`);
+if (savedData) {
+const data = JSON.parse(savedData);
+const timeElapsed = data.timeElapsed;
+row.querySelector(`td:nth-of-type(4)`).innerHTML = formatTime(timeElapsed);
+}
+}
+
+/////////////////////////////////////////////////////////////////////LOAD CACHE///////////////////////////////////////////////////////////////////////////
+
+// A function to load projects from local storage
+function loadProjects() {
+const counter = localStorage.getItem("counter");
+if (counter) {
+const tbody = document.getElementById("projects");
+
+// Loop through the projects
+for (let i = 1; i <= counter; i++) {
+const savedData = localStorage.getItem(`project${i}`);
+if (savedData) {
+const data = JSON.parse(savedData);
+
+// Check if the project name or description is not empty
+if (data.projectName.trim() !== "" || data.projectDesc.trim() !== "") {
+const row = tbody.insertRow(-1);
+row.setAttribute("id", `row${i}`);
+
+// Create cells for project data
+const numCell = row.insertCell(0);
+const nameCell = row.insertCell(1);
+const descCell = row.insertCell(2);
+const timeCell = row.insertCell(3);
+const dateCell = row.insertCell(4);
+const actionCell = row.insertCell(5);
+
+// Populate cells with data
+numCell.innerHTML = i;
+nameCell.innerHTML = `<input type="text" id="name${i}" value="${data.projectName}">`;
+descCell.innerHTML = `<input type="text" id="desc${i}" value="${data.projectDesc}">`;
+timeCell.innerHTML = formatTime(data.timeElapsed);
+dateCell.innerHTML = new Date(data.startTime).toLocaleDateString();
+actionCell.innerHTML = `<button onclick="startTimer(${i})" ${data.timeElapsed > 0 ? 'enabled' : ''}>Start</button> <button onclick="stopTimer(${i})" ${data.timeElapsed === 0 ? 'disabled' : ''}>Stop</button> <button onclick="duplicateRow(${counter})">Duplicate</button> <button class="btn-danger" onclick="deleteRow(${i})">Delete</button>`;
+
+// Check if the timer is running and clear it
+if (data.timeElapsed > 0) {
+clearInterval(row.getAttribute("data-timer-id"));
+}
+}
+}
+}
+}
+}
+
+////////////////////////////////////////////////////////////////////////RESET////////////////////////////////////////////////////////////////////////////
+
+// This function resets the entire localStorage database and reloads the page to reflect the changes
+function resetLocalStorage() {
+if (confirm("Are you sure you want to reset the entire database? This action cannot be undone.")) {
+localStorage.clear();
+location.reload();
+}
+}
+
+////////////////////////////////////////////////////////////////////////DELETE///////////////////////////////////////////////////////////////////////////
+
+// This function deletes a row from the table and removes its corresponding item from localStorage
+function deleteRow(rowNum) {
+const row = document.getElementById(`row${rowNum}`);
+row.remove();
+localStorage.removeItem(`project${rowNum}`);
+}
+
+/////////////////////////////////////////////////////////////////////FORMAT TIME//////////////////////////////////////////////////////////////////////////
+
+// This function formats a time elapsed value in seconds to a string format of hours:minutes:seconds
+function formatTime(timeElapsed) {
+const hours = Math.floor(timeElapsed / 3600);
+const minutes = Math.floor((timeElapsed - (hours * 3600)) / 60);
+const seconds = timeElapsed - (hours * 3600) - (minutes * 60);
+return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+/////////////////////////////////////////////////////////////////////DARK MODE//////////////////////////////////////////////////////////////////////////
+
+// JavaScript code for toggling dark mode
+function toggleDarkMode() {
+
+// Get the container element
+var container = document.querySelector('.container');
+
+// Toggle the 'dark-mode' class on the container
+container.classList.toggle('dark-mode');
+
+// Get the body element
+var body = document.querySelector('body');
+
+// Toggle the 'dark-mode' class on the body
+body.classList.toggle('dark-mode');
+
+// Get the dark mode toggle element
+var darkModeToggle = document.getElementById('dark-mode-toggle');
+
+// Toggle the 'dark-mode' class on the toggle element
+darkModeToggle.classList.toggle('dark-mode');
+
+// Update font color
+var elements = document.querySelectorAll('.container, h1, h3');
+
+elements.forEach(function (element) {
+
+// Set the font color to white if dark mode is enabled, otherwise set it to black
+element.style.color = darkModeToggle.classList.contains('dark-mode') ? 'white' : 'black';
+});
+}
+
+/////////////////////////////////////////////////////////////////////DUPLICATE/////////////////////////////////////////////////////////////////////////////
+
+// This function duplicates the row where the "Duplicate" button is clicked
+function duplicateRow() {
+
+const button = event.target; // Get the button element that was clicked
+const row = button.parentNode.parentNode; // Get the parent row of the button
+
+// Get the project name and description from the current row
+const projectName = row.querySelector("input[id^='name']").value;
+
+// Add a new row
+addRow();
+
+// Get the new row and set the project name and description
+const newRow = document.getElementById(`row${counter}`);
+newRow.querySelector("input[id^='name']").value = projectName;
+}
+
+/////////////////////////////////////////////////////////////////////IMPORT///////////////////////////////////////////////////////////////////////////
+
+// This function imports data from a CSV file into a web page form.
+function importFromCSV() {
+const fileInput = document.getElementById("importFile"); // Get the file input element from the page
+
+if (fileInput.files.length === 0) {
+// If no file is selected, show an alert and return
+alert("Please select a file to import.");
+return;
+}
+
+const file = fileInput.files[0]; // Get the selected file
+const reader = new FileReader(); // Create a new FileReader object
+
+reader.onload = (e) => {
+// Set up an onload event handler for the reader
+const contents = e.target.result; // Get the file contents as a string
+const rows = contents.split("\n"); // Split the contents into an array of rows
+
+for (let i = 1; i < rows.length; i++) {
+// Loop through each row in the array, starting at the second row
+const cells = rows[i].split(","); // Split the row into an array of cells
+
+if (cells.length === 5 && !isNaN(parseInt(cells[0]))) {
+// If there are 5 cells and the first cell is a number
+const recordNumber = parseInt(cells[0]); // Get the record number as an integer
+const projectName = cells[1]; // Get the project name
+const projectDesc = cells[2]; // Get the project description
+const timeElapsed = cells[3]; // Get the time elapsed
+const date = cells[4]; // Get the date
+
+if (!isNaN(parseFloat(timeElapsed))) {
+// If the time elapsed is a valid number
+addRow(); // Add a new row to the form
+const lastRow = document.getElementById(`row${counter}`); // Get a reference to the new row
+lastRow.querySelector(`#name${counter}`).value = projectName; // Set the project name input field value
+lastRow.querySelector(`#desc${counter}`).value = projectDesc; // Set the project description input field value
+}
+}
+}
+};
+reader.readAsText(file); // Read the file as text
+}
+
+//////////////////////////////////////////////////////////////////////EXPORT/////////////////////////////////////////////////////////////////////////////
+
+// This function exports the time tracking data stored in localStorage as a CSV file
+function exportToCSV() {
+const projects = []; // an empty array to hold the data
+const headers = ['Record #', 'Project Name', 'Project Description', 'Time Elapsed', 'Date'];
+projects.push(headers.join(',')); // add headers as the first row of the CSV
+
+for (let i = 1; i <= localStorage.length; i++) {
+const savedData = localStorage.getItem(`project${i}`); // get the saved data for this project
+
+if (savedData) {
+const data = JSON.parse(savedData); // parse the JSON data
+const projectName = data.projectName;
+const projectDesc = data.projectDesc;
+const timeElapsed = formatTime(data.timeElapsed); // format the time elapsed
+const date = new Date(data.startTime).toLocaleDateString(); // format the date
+const row = [i, projectName, projectDesc, timeElapsed, date];
+projects.push(row.join(',')); // add the row to the projects array
+}
+}
+
+const csvData = projects.join('\n'); // join the rows with newlines to create the CSV
+const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' }); // create a blob from the CSV data
+const url = URL.createObjectURL(blob); // create a URL from the blob
+const link = document.createElement('a'); // create a link element to trigger the download
+link.setAttribute('href', url);
+link.setAttribute('download', 'TimeKeeper.csv'); // set the filename for the download
+link.style.visibility = 'hidden';
+document.body.appendChild(link);
+link.click(); // trigger the download
+document.body.removeChild(link);
+}
+
+/////////////////////////////////////////////////////////////////////EXECUTE///////////////////////////////////////////////////////////////////////////
+
+window.onload = loadProjects;
+
+</script>
+
+</body>
+
+</html>
